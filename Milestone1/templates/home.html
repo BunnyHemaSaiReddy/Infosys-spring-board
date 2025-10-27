@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome - AuthApp</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="home-container">
+    <header class="header">
+      <a href="/" class="logo">AuthApp</a>
+      <div class="header-buttons">
+        <a href="/login"><button class="btn btn-secondary">Log In</button></a>
+        <a href="/signup"><button class="btn btn-primary">Sign Up</button></a>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="hero-section">
+        <h1 class="hero-title">Welcome to AuthApp</h1>
+        <p class="hero-subtitle">Secure authentication made simple. Join thousands of users who trust our platform for their authentication needs.</p>
+        <div class="hero-image">
+          <div>🚀 Modern Authentication Platform</div>
+        </div>
+        <div class="btn-group">
+          <a href="/signup"><button class="btn btn-primary">Get Started</button></a>
+          <a href="/login"><button class="btn btn-secondary">Sign In</button></a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div>&copy; 2024 AuthApp. All rights reserved.</div>
+        <div class="social-links">
+          <a href="#" title="Twitter">📱</a>
+          <a href="#" title="LinkedIn">💼</a>
+          <a href="#" title="GitHub">🐙</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
