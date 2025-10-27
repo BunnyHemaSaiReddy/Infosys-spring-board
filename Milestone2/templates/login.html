@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In - AuthApp</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-wrapper">
+      <div class="auth-left">
+        <h2>Welcome Back</h2>
+        <p>Sign in to your account and continue your journey with AuthApp. Access your dashboard and manage your account securely.</p>
+        <div class="auth-placeholder">
+          <div>👤<br>Secure<br>Login</div>
+        </div>
+      </div>
+      
+      <div class="auth-right">
+        <div class="container">
+          <h1 class="brand-title">Sign In</h1>
+          <p class="brand-subtitle">Welcome back to your account</p>
+
+          <div class="alerts">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for msg in messages %}
+                  <div class="alert alert-error">{{ msg }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+          </div>
+
+          <form method="POST" action="/login">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input id="email" type="email" name="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input id="password" type="password" name="password" placeholder="Your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+          </form>
+
+          <div class="link-row">
+            <a href="#" onclick="openForgotPasswordModal()">Forgot password?</a>
+            <span class="muted">No account? <a href="/signup">Sign up</a></span>
+          </div>
+
+          <div class="divider"><span>or</span></div>
+          <button onclick="signInWithGoogle()" class="btn btn-google" style="width:100%">Continue with Google</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotPasswordModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <span class="close" onclick="closeForgotPasswordModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p>Enter your email address and we'll send you a reset link.</p>
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label for="resetEmail">Email Address</label>
+            <input id="resetEmail" type="email" placeholder="you@example.com" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Send Reset Email</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_dvNAf19mcXXdLZjoHsgC8SmmLKcbKKg",
+      authDomain: "signup-login-b28f5.firebaseapp.com",
+      projectId: "signup-login-b28f5",
+      storageBucket: "signup-login-b28f5.appspot.com",
+      messagingSenderId: "946139293369",
+      appId: "1:946139293369:web:25c7ab86146ec144a35d68",
+      measurementId: "G-FQ8CE9TTK0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          return result.user.getIdToken();
+        })
+        .then((idToken) => {
+          return fetch('/google-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+          });
+        })
+        .then((response) => {
+          if (response.redirected) {
+            window.location.href = response.url;
+          } else if (response.status === 400) {
+            alert('Google sign-in failed.');
+          }
+        })
+        .catch((error) => {
+          console.error("Google Sign-In Error:", error.message);
+          alert('Google sign-in was blocked or failed.');
+        });
+    }
+
+    function openForgotPasswordModal() {
+      document.getElementById('forgotPasswordModal').style.display = 'block';
+    }
+
+    function closeForgotPasswordModal() {
+      document.getElementById('forgotPasswordModal').style.display = 'none';
+    }
+
+    document.getElementById('forgotPasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('resetEmail').value;
+      
+      fetch('/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'email=' + encodeURIComponent(email)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('Password reset email sent! Check your inbox.');
+          closeForgotPasswordModal();
+        } else {
+          alert('Error sending reset email. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error sending reset email. Please try again.');
+      });
+    });
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('forgotPasswordModal');
+      if (event.target == modal) {
+        closeForgotPasswordModal();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - AuthApp</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-wrapper">
+      <div class="auth-left">
+        <h2>Join AuthApp Today</h2>
+        <p>Create your account and start your journey with our secure authentication platform. Get access to advanced features and seamless user experience.</p>
+        <div class="auth-placeholder">
+          <div>🔐<br>Secure<br>Authentication</div>
+        </div>
+      </div>
+      
+      <div class="auth-right">
+        <div class="container">
+          <h1 class="brand-title">Create Account</h1>
+          <p class="brand-subtitle">Sign up to get started</p>
+
+          <div class="alerts">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for msg in messages %}
+                  <div class="alert alert-error">{{ msg }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+          </div>
+
+          <form method="POST" action="/signup" id="signupForm">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input id="email" type="email" name="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input id="password" type="password" name="password" placeholder="Create a strong password" required>
+            </div>
+            <div class="form-group">
+              <label for="confirm_password">Confirm Password</label>
+              <input id="confirm_password" type="password" name="confirm_password" placeholder="Confirm your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Account</button>
+          </form>
+
+          <div class="link-row">
+            <span class="muted">Already have an account?</span>
+            <a href="/login">Sign In</a>
+          </div>
+
+          <div class="divider"><span>or</span></div>
+          <button onclick="signInWithGoogle()" class="btn btn-google" style="width:100%">Continue with Google</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_dvNAf19mcXXdLZjoHsgC8SmmLKcbKKg",
+      authDomain: "signup-login-b28f5.firebaseapp.com",
+      projectId: "signup-login-b28f5",
+      storageBucket: "signup-login-b28f5.appspot.com",
+      messagingSenderId: "946139293369",
+      appId: "1:946139293369:web:25c7ab86146ec144a35d68",
+      measurementId: "G-FQ8CE9TTK0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          return result.user.getIdToken();
+        })
+        .then((idToken) => {
+          return fetch('/google-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: idToken })
+          });
+        })
+        .then((response) => {
+          if (response.redirected) {
+            window.location.href = response.url;
+          } else if (response.status === 400) {
+            alert('Google sign-in failed.');
+          }
+        })
+        .catch((error) => {
+          console.error("Google Sign-In Error:", error.message);
+          alert('Google sign-in was blocked or failed.');
+        });
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match. Please try again.');
+        return false;
+      }
+      
+      if (password.length < 6) {
+        e.preventDefault();
+        alert('Password must be at least 6 characters long.');
+        return false;
+      }
+    });
+  </script>
+</body>
+</html>
